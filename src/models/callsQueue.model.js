@@ -2,24 +2,20 @@ const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 const bcrypt = require("bcrypt");
 
-class VoiceMemoTranscription extends Model {}
+class CallsQueue extends Model {}
 
-VoiceMemoTranscription.init(
+CallsQueue.init(
   {
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-    },
-    memo_sid: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
       primaryKey: true,
     },
-    transcription: {
-      type: DataTypes.STRING(255),
+    dest_number: {
+      type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
     },
-    transcription_source: {
+    ip_address: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
@@ -31,10 +27,10 @@ VoiceMemoTranscription.init(
 
   {
     sequelize,
-    modelName: "VoiceMemosTranscriptions",
-    tableName: "voice_memos_transcriptions",
+    modelName: "CallsQueue",
+    tableName: "call_queue",
     timestamps: false,
   }
 );
 
-module.exports = VoiceMemoTranscription;
+module.exports = CallsQueue;

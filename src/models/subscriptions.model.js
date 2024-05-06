@@ -2,10 +2,10 @@ const { Sequelize, DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize'); 
 const bcrypt = require('bcrypt');
 
-class Subscription extends Model {
+class Subscriptions extends Model {
 }
 
-Subscription.init(
+Subscriptions.init(
   {
   uuid: {
     type: DataTypes.STRING(255),
@@ -74,4 +74,4 @@ Subscription.init(
 }
 );
 
-module.exports = Subscription;
+module.exports = Subscriptions;

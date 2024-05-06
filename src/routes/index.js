@@ -41,7 +41,7 @@ const routes = [
     ],
   },
   {
-    route: "/user-call",
+    route: "/user-calls",
     methods: [
       {
         method: "POST",

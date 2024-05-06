@@ -1,12 +1,12 @@
 const { sequelize, DataTypes, literal } = require("sequelize");
 const catchAsync = require("../utils/catchAsync");
 const User = require("../models/user.model");
-const Subscription = require("../models/subscriptions.model");
-const VoiceMemo = require("../models/voice-memos.model");
-const Call = require("../models/calls.model");
-const CallTranscription = require("../models/calls-transcriptions.model");
-const VoiceMemoTranscription = require("../models/voice-memos-transcriptions.model");
-const CallQueue = require("../models/calls-queue.model");
+const Subscriptions = require("../models/subscriptions.model");
+const VoiceMemos = require("../models/voiceMemos.model");
+const Calls = require("../models/calls.model");
+const CallsTranscriptions = require("../models/callsTranscriptions.model");
+const VoiceMemosTranscriptions = require("../models/voiceMemosTranscriptions.model");
+const CallsQueue = require("../models/callsQueue.model");
 
 const getUsers = catchAsync(async (req, res) => {
   try {
@@ -21,7 +21,7 @@ const getUsers = catchAsync(async (req, res) => {
 
 const getSubscriptions = catchAsync(async (req, res) => {
   try {
-    const subscriptions = await Subscription.findAll();
+    const subscriptions = await Subscriptions.findAll();
     res.json(subscriptions);
     //  console.log("subscriptions");
   } catch (error) {
@@ -32,7 +32,7 @@ const getSubscriptions = catchAsync(async (req, res) => {
 
 const getVoiceMemos = catchAsync(async (req, res) => {
   try {
-    const voiceMemos = await VoiceMemo.findAll();
+    const voiceMemos = await VoiceMemos.findAll();
     res.json(voiceMemos);
     //  console.log("voiceMemos");
   } catch (error) {
@@ -43,7 +43,7 @@ const getVoiceMemos = catchAsync(async (req, res) => {
 
 const getCalls = catchAsync(async (req, res) => {
   try {
-    const calls = await Call.findAll();
+    const calls = await Calls.findAll();
     res.json(calls);
     //  console.log("calls");
   } catch (error) {
@@ -63,7 +63,7 @@ const userCall = catchAsync(async (req, res) => {
       return res.json({ message: "User not found." });
     }
 
-    const calls = await Call.findAll({ where: { user_id } });
+    const calls = await Calls.findAll({ where: { user_id } });
 
     if (calls.length === 0) {
       return res.json({ message: "This user has no calls yet." });
@@ -87,7 +87,7 @@ const userVoiceMemo = catchAsync(async (req, res) => {
       return res.json({ message: "User not found." });
     }
 
-    const voiceMemos = await VoiceMemo.findAll({ where: { user_id } });
+    const voiceMemos = await VoiceMemos.findAll({ where: { user_id } });
 
     if (voiceMemos.length === 0) {
       return res.json({
@@ -113,7 +113,7 @@ const userSubscribed = catchAsync(async (req, res) => {
       return res.json({ message: "User not found." });
     }
 
-    const subscription = await Subscription.findOne({
+    const subscription = await Subscriptions.findOne({
       where: { uuid: user.uuid },
       attributes: ["active_subscription"],
     });
@@ -153,7 +153,7 @@ const callsTranscriptions = catchAsync(async (req, res) => {
 
     const callSid = calls.map((call) => call.call_sid);
 
-    const callTranscriptions = await CallTranscription.findAll({
+    const userCallsTranscriptions = await CallsTranscriptions.findAll({
       where: { call_sid: callSid },
       attributes: [
         "call_sid",
@@ -167,12 +167,12 @@ const callsTranscriptions = catchAsync(async (req, res) => {
       ],
     });
 
-    if (callTranscriptions.length === 0) {
+    if (userCallsTranscriptions.length === 0) {
       return res.json({
         message: "No Transcriptions found for the User's Calls.",
       });
     }
-    res.json({ "Calls Transcriptions of the User": callTranscriptions });
+    res.json({ "Calls Transcriptions of the User": userCallsTranscriptions });
   } catch (error) {
     console.error("Error fetching Calls Transcriptions:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -190,20 +190,20 @@ const voiceMemosTranscriptions = catchAsync(async (req, res) => {
     if (!user) {
       return res.json({ message: "User not found." });
     }
-    const voiceMemos = await VoiceMemo.findAll({
+    const userVoiceMemos = await VoiceMemos.findAll({
       where: { user_id },
       attributes: ["memo_sid"],
     });
 
-    if (voiceMemos.length === 0) {
+    if (userVoiceMemos.length === 0) {
       return res.json({
         message: "There is no voice memo recorded for the user.",
       });
     }
 
-    const memoSid = voiceMemos.map((voiceMemo) => voiceMemo.memo_sid);
+    const memoSid = userVoiceMemos.map((voiceMemos) => voiceMemos.memo_sid);
 
-    const voiceMemoTranscriptions = await VoiceMemoTranscription.findAll({
+    const userVoiceMemosTranscriptions = await VoiceMemosTranscriptions.findAll({
       where: { memo_sid: memoSid },
       attributes: [
         "memo_sid",
@@ -217,13 +217,13 @@ const voiceMemosTranscriptions = catchAsync(async (req, res) => {
       ],
     });
 
-    if (voiceMemoTranscriptions.length === 0) {
+    if (userVoiceMemosTranscriptions.length === 0) {
       return res.json({
         message: "No Transcriptions found for the User's Voice Memos.",
       });
     }
     res.json({
-      "Voice Memos Transcriptions of the User": voiceMemoTranscriptions,
+      "Voice Memos Transcriptions of the User": userVoiceMemosTranscriptions,
     });
   } catch (error) {
     console.error("Error fetching Voice Memos Transcriptions:", error);
@@ -233,7 +233,7 @@ const voiceMemosTranscriptions = catchAsync(async (req, res) => {
 
 const getCallsQueue = catchAsync(async (req, res) => {
   try {
-    const callsQueue = await CallQueue.findAll();
+    const callsQueue = await CallsQueue.findAll();
     res.json(callsQueue);
     // console.log("callsQueue");
   } catch (error) {
@@ -253,12 +253,12 @@ const getUserCallsQueue = catchAsync(async (req, res) => {
       return res.json({ message: "User not found." });
     }
 
-    const callsQueue = await CallQueue.findAll({ where: { user_id } });
+    const userCallsQueue = await CallsQueue.findAll({ where: { user_id } });
 
-    if (callsQueue.length === 0) {
+    if (userCallsQueue.length === 0) {
       return res.json({ message: "You don't have any call in the queue" });
     }
-    res.json(callsQueue);
+    res.json(userCallsQueue);
   } catch (error) {
     console.error("Error fetching User's Call Queue:", error);
     return res.status(500).json({ error: "Internal server error" });

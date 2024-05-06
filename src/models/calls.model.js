@@ -2,9 +2,9 @@ const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 const bcrypt = require("bcrypt");
 
-class Call extends Model {}
+class Calls extends Model {}
 
-Call.init(
+Calls.init(
   {
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
@@ -53,4 +53,4 @@ Call.init(
   }
 );
 
-module.exports = Call;
+module.exports = Calls;
