@@ -1,6 +1,5 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
-const bcrypt = require("bcrypt");
 
 class VoiceMemos extends Model {}
 

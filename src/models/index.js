@@ -2,23 +2,22 @@ const sequelize = require("../config/sequelize");
 const Sequelize = require("sequelize");
 const DataTypes = Sequelize.DataTypes;
 
-const User = require("./user.model");
-// const CallQueue = require("./calls-queue.model");
-// const CallTranscription = require("./calls-transcriptions.model");
-// const Call = require("./calls.model");
-// const Subscription = require("./subscriptions.model");
-// const VoiceMemoTranscription = require("./voice-memos-transcriptions.model");
-// const VoiceMemo = require("./voice-memos.model");
-// const VoiceMemo = require('./voice-memos.model')
 
-const Models = {
+const User = require("./user.model");
+const Subscriptions = require("./subscriptions.model");
+
+
+Models = {
   User: User,
-  // CallQueue: CallQueue,
-  // CallTranscription: CallTranscription,
-  // Call: Call,
-  // Subscription: Subscription,
-  // VoiceMemoTranscription: VoiceMemoTranscription,
-  // VoiceMemo: VoiceMemo,
+  Subscriptions: Subscriptions,
 };
+
+console.log("associate");
+Object.values(Models).forEach((model) => {
+  // console.log(model);
+  if (model.associate) {
+    model.associate(Models);
+  }
+});
 
 module.exports = Models;
