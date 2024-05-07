@@ -2,10 +2,9 @@ const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
 class Subscriptions extends Model {
-  static associate(Models)  {
- 
-  };
-}
+    // static associate(Models)  {
+    // };
+  }
 
 Subscriptions.init(
   {

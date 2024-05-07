@@ -142,7 +142,7 @@ const callsTranscriptions = catchAsync(async (req, res) => {
     if (!user) {
       return res.json({ message: "User not found." });
     }
-    const calls = await Call.findAll({
+    const calls = await Calls.findAll({
       where: { user_id },
       attributes: ["call_sid"],
     });
