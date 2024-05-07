@@ -11,11 +11,11 @@ Models = {
 };
 
 // console.log("associate");
-// Object.values(Models).forEach((model) => {
-//   // console.log(model);
-//   if (model.associate) {
-//     model.associate(Models);
-//   }
-// });
+Object.values(Models).forEach((model) => {
+  // console.log(model);
+  if (model.associate) {
+    model.associate(Models);
+  }
+});
 
 module.exports = Models;
