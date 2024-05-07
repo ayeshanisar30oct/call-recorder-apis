@@ -1,7 +1,9 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
-class VoiceMemosTranscriptions extends Model {}
+class VoiceMemosTranscriptions extends Model {
+  static associate(Models) {}
+}
 
 VoiceMemosTranscriptions.init(
   {

@@ -1,7 +1,9 @@
 const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
-class Calls extends Model {}
+class Calls extends Model {
+  static associate(Models) {}
+}
 
 Calls.init(
   {

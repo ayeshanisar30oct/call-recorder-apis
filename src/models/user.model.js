@@ -3,6 +3,7 @@ const sequelize = require('../config/sequelize');
 // const bcrypt = require('bcrypt');
 
 class User extends Model {
+  static associate(Models) {}
 }
 
 User.init(
