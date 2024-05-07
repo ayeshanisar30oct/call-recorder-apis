@@ -4,17 +4,21 @@ const path = require("path");
 
 dotenv.config({ path: path.join(__dirname, "../../.env") });
 
-const envVarsSchema = Joi.object({
-  NODE_ENV: Joi.string().valid("production", "development").required(),
-  PORT: Joi.number().default(3030),
-  MYSQL_HOST: Joi.string().required(),
-  MYSQL_USER: Joi.string().required(),
-  MYSQL_PASSWORD: Joi.string().allow("").required(),
-  MYSQL_DATABASE: Joi.string().required(),
-}).unknown();
+const envVarsSchema = Joi.object()
+  .keys({
+    NODE_ENV: Joi.string().required(),
+    PORT: Joi.number().default(8000),
+    MYSQL_HOST: Joi.string().required().description("localhost"),
+    MYSQL_USER: Joi.string().required().description("root"),
+    MYSQL_PASSWORD: Joi.string().allow("").required().description("Database password, can be empty"), 
+    MYSQL_DATABASE: Joi.string().required().description("callrecorder"),
+  })
+  .unknown();
 
-const { value: envVars, error } = envVarsSchema.validate(process.env);
-
+const { value: envVars, error } = envVarsSchema
+  .prefs({ errors: { label: "key" } })
+  .validate(process.env);
+  
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
