@@ -1,8 +1,14 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
 class VoiceMemos extends Model {
-  static associate(Models) {}
+  static associate(models) {
+
+    VoiceMemos.hasOne(models.VoiceMemosTranscriptions, {
+      foreignKey: "memo_sid",
+      as: "transcription",
+    });
+  }
 }
 
 VoiceMemos.init(
@@ -10,6 +16,10 @@ VoiceMemos.init(
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
+      references: {
+        model: "User",
+        key: "id",
+      },
     },
     ip_address: {
       type: DataTypes.STRING(255),

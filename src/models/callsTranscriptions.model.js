@@ -1,8 +1,16 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
 class CallsTranscriptions extends Model {
-  static associate(Models) {}
+  
+  static associate(models) {
+
+     CallsTranscriptions.belongsTo(models.Calls, {
+       foreignKey: "call_sid",
+       as: "call_transcription",
+     });
+
+  }
 }
 
 CallsTranscriptions.init(

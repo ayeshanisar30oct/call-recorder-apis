@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { register_route } = require("../utils/register.routes");
-const controllers = require("../controllers/controllers");
+const controllers = require("../controllers");
 const routes = [
   {
     route: "/users",
@@ -59,7 +59,7 @@ const routes = [
     ],
   },
   {
-    route: "/user-voice-memo",
+    route: "/user-voice-memos",
     methods: [
       {
         method: "POST",

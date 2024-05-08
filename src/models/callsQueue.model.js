@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
 class CallsQueue extends Model {

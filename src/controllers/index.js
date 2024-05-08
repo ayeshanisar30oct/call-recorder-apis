@@ -54,16 +54,26 @@ const getCalls = catchAsync(async (req, res) => {
 
 const userCall = catchAsync(async (req, res) => {
   try {
-    const { user_id } = req.body;
+let { user_id, id } = req.body;
+
+if (!user_id && id) {
+  user_id = id;
+}
+
     if (!user_id) {
       return res.status(400).json({ error: "'user_id' is required." });
     }
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(user_id, {
+      include: {
+        model: Calls,
+        as: "calls",
+      },
+    });
     if (!user) {
       return res.json({ message: "User not found." });
     }
 
-    const calls = await Calls.findAll({ where: { user_id } });
+    const calls = user.calls; 
 
     if (calls.length === 0) {
       return res.json({ message: "This user has no calls yet." });
@@ -78,16 +88,26 @@ const userCall = catchAsync(async (req, res) => {
 
 const userVoiceMemo = catchAsync(async (req, res) => {
   try {
-    const { user_id } = req.body;
+     let { user_id, id } = req.body;
+
+      if (!user_id && id) {
+        user_id = id;
+      }
+
     if (!user_id) {
-      return res.status(400).json({ error: "'user_id' is required." });
+      return res.status(400).json({ error: "'user_id' or 'id' is required." });
     }
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(user_id, {
+      include: {
+        model: VoiceMemos,
+        as: "voiceMemos",
+      },
+    });
     if (!user) {
       return res.json({ message: "User not found." });
     }
 
-    const voiceMemos = await VoiceMemos.findAll({ where: { user_id } });
+ const voiceMemos = user.voiceMemos;
 
     if (voiceMemos.length === 0) {
       return res.json({
@@ -108,23 +128,31 @@ const userSubscribed = catchAsync(async (req, res) => {
       return res.status(400).json({ error: "'user_id' is required." });
     }
 
-    const user = await User.findByPk(user_id, { attributes: ["id", "uuid"] });
+    const user = await User.findByPk(user_id, {
+      attributes: ["id", "uuid"],
+      include: {
+        model: Subscriptions,
+        as: "subscription",
+        attributes: ["active_subscription"],
+      },
+    });
+
     if (!user) {
       return res.json({ message: "User not found." });
     }
 
-    const subscription = await Subscriptions.findOne({
-      where: { uuid: user.uuid },
-      attributes: ["active_subscription"],
-    });
-if (!subscription) {
-  return res.json({ message: "No subscription found for the user." });
-}
-    if (subscription.active_subscription) {
-      return res.json({ message: "User is subscribed." });
-    } else {
-      return res.json({ message: "User is not subscribed." });
+    const subscription = user.subscription;
+
+    if (!subscription) {
+      return res.json({ message: "No subscription found for the user." });
     }
+
+    const isSubscribed = subscription.active_subscription;
+    return res.json({
+      message: isSubscribed
+        ? "User's subscription is active"
+        : "User's subscription is inactive",
+    });
   } catch (error) {
     console.error("Error fetching subscription details:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -138,33 +166,46 @@ const callsTranscriptions = catchAsync(async (req, res) => {
       return res.status(400).json({ error: "'user_id' is required." });
     }
 
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(user_id, {
+      include: [
+        {
+          model: Calls,
+          as: "calls",
+          attributes: ["call_sid"],
+          include: [
+            {
+              model: CallsTranscriptions,
+              as: "transcription",
+              attributes: [
+                "call_sid",
+                [
+                  literal(
+                    "JSON_UNQUOTE(JSON_EXTRACT(transcription, '$.text'))"
+                  ),
+                  "transcription",
+                ],
+                "transcription_source",
+                "created_at",
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
     if (!user) {
       return res.json({ message: "User not found." });
     }
-    const calls = await Calls.findAll({
-      where: { user_id },
-      attributes: ["call_sid"],
-    });
 
-    if (calls.length === 0) {
+    const userCalls = user.calls;
+    if (userCalls.length === 0) {
       return res.json({ message: "This user has no calls yet." });
     }
 
-    const callSid = calls.map((call) => call.call_sid);
+    const callSids = userCalls.map((call) => call.call_sid);
 
     const userCallsTranscriptions = await CallsTranscriptions.findAll({
-      where: { call_sid: callSid },
-      attributes: [
-        "call_sid",
-        // "transcription",
-        [
-          literal("JSON_UNQUOTE(JSON_EXTRACT(transcription, '$.text'))"),
-          "transcription",
-        ],
-        "transcription_source",
-        "created_at",
-      ],
+      where: { call_sid: callSids },
     });
 
     if (userCallsTranscriptions.length === 0) {
@@ -172,6 +213,7 @@ const callsTranscriptions = catchAsync(async (req, res) => {
         message: "No Transcriptions found for the User's Calls.",
       });
     }
+
     res.json({ "Calls Transcriptions of the User": userCallsTranscriptions });
   } catch (error) {
     console.error("Error fetching Calls Transcriptions:", error);
@@ -186,44 +228,60 @@ const voiceMemosTranscriptions = catchAsync(async (req, res) => {
       return res.status(400).json({ error: "'user_id' is required." });
     }
 
-    const user = await User.findByPk(user_id);
+    const user = await User.findByPk(user_id, {
+      include: [
+        {
+          model: VoiceMemos,
+          as: "voiceMemos",
+          attributes: ["memo_sid"],
+          include: [
+            {
+              model: VoiceMemosTranscriptions,
+              as: "transcription",
+              attributes: [
+                "memo_sid",
+                [
+                  literal(
+                    "JSON_UNQUOTE(JSON_EXTRACT(transcription, '$.text'))"
+                  ),
+                  "transcription",
+                ],
+                "transcription_source",
+                "created_at",
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
     if (!user) {
       return res.json({ message: "User not found." });
     }
-    const userVoiceMemos = await VoiceMemos.findAll({
-      where: { user_id },
-      attributes: ["memo_sid"],
-    });
 
+    const userVoiceMemos = user.voiceMemos;
     if (userVoiceMemos.length === 0) {
       return res.json({
         message: "There is no voice memo recorded for the user.",
       });
     }
 
-    const memoSid = userVoiceMemos.map((voiceMemos) => voiceMemos.memo_sid);
+    const memoSids = userVoiceMemos.map((voiceMemo) => voiceMemo.memo_sid);
 
-    const userVoiceMemosTranscriptions = await VoiceMemosTranscriptions.findAll({
-      where: { memo_sid: memoSid },
-      attributes: [
-        "memo_sid",
-        // "transcription",
-        [
-          literal("JSON_UNQUOTE(JSON_EXTRACT(transcription, '$.text'))"),
-          "transcription",
-        ],
-        "transcription_source",
-        "created_at",
-      ],
-    });
+    const userVoiceMemosTranscriptions = await VoiceMemosTranscriptions.findAll(
+      {
+        where: { memo_sid: memoSids },
+      }
+    );
 
     if (userVoiceMemosTranscriptions.length === 0) {
       return res.json({
         message: "No Transcriptions found for the User's Voice Memos.",
       });
     }
+
     res.json({
-      "Voice Memos Transcriptions of the User": userVoiceMemosTranscriptions,
+      "Voice memos Transcriptions of the User": userVoiceMemosTranscriptions,
     });
   } catch (error) {
     console.error("Error fetching Voice Memos Transcriptions:", error);
@@ -248,22 +306,25 @@ const getUserCallsQueue = catchAsync(async (req, res) => {
     if (!user_id) {
       return res.status(400).json({ error: "'user_id' is required." });
     }
-    const user = await User.findByPk(user_id);
+
+    const user = await User.findByPk(user_id, { include: "callsQueue" });
     if (!user) {
       return res.json({ message: "User not found." });
     }
 
-    const userCallsQueue = await CallsQueue.findAll({ where: { user_id } });
+    const userCallsQueue = user.callsQueue;
 
     if (userCallsQueue.length === 0) {
       return res.json({ message: "You don't have any call in the queue" });
     }
+
     res.json(userCallsQueue);
   } catch (error) {
     console.error("Error fetching User's Call Queue:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 module.exports = {
   getUsers,
@@ -278,3 +339,5 @@ module.exports = {
   getCallsQueue,
   getUserCallsQueue,
 };
+
+

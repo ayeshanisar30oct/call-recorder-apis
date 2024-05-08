@@ -1,8 +1,15 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
 class Calls extends Model {
-  static associate(Models) {}
+
+  static associate(models) {
+
+      Calls.hasOne(models.CallsTranscriptions, {
+        foreignKey: "call_sid",
+        as: "transcription"
+      });
+  }
 }
 
 Calls.init(
@@ -10,6 +17,10 @@ Calls.init(
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
+      references: {
+        model: "User", 
+        key: "id", 
+      },
     },
     dest_number: {
       type: DataTypes.BIGINT.UNSIGNED,

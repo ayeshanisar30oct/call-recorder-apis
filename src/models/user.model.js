@@ -1,9 +1,37 @@
-const { Sequelize, DataTypes, Model } = require('sequelize');
+const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/sequelize'); 
 // const bcrypt = require('bcrypt');
 
 class User extends Model {
-  static associate(Models) {}
+
+  static associate(models) {
+
+      User.hasOne(models.Subscriptions, {
+        foreignKey: "uuid",
+        // targetKey: "uuid",
+        sourceKey: "uuid",
+        as: "subscription",
+        constraints: false,
+      });
+
+      User.hasMany(models.Calls, {
+        foreignKey: "user_id",
+        as: "calls",
+        constraints: false,
+      });
+
+      User.hasMany(models.VoiceMemos, {
+        foreignKey: "user_id",
+        as: "voiceMemos",
+        constraints: false,
+      });
+
+        User.hasMany(models.CallsQueue, {
+          foreignKey: "user_id",
+          as: "callsQueue",
+          constraints: false,
+        });
+ }
 }
 
 User.init(
@@ -53,7 +81,7 @@ User.init(
   }
 },
 
-{
+ {
   sequelize,
   modelName: 'User',
   tableName: 'users',

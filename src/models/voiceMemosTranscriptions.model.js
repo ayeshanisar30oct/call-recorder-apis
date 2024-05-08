@@ -1,8 +1,15 @@
-const { Sequelize, DataTypes, Model } = require("sequelize");
+const { DataTypes, Model } = require("sequelize");
 const sequelize = require("../config/sequelize");
 
 class VoiceMemosTranscriptions extends Model {
-  static associate(Models) {}
+  static associate(models) {
+
+      VoiceMemosTranscriptions.belongsTo(models.VoiceMemos, {
+        foreignKey: "memo_sid",
+        as: "memo_transcription",
+      });
+
+  }
 }
 
 VoiceMemosTranscriptions.init(
