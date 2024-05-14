@@ -69,11 +69,11 @@ User.init(
   },
   is_subscribed: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: true
   },
   deleted: {
    type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: true
   },
   deleted_at: {
    type: DataTypes.DATE,

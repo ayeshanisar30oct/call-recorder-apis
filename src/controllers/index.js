@@ -19,6 +19,51 @@ const getUsers = catchAsync(async (req, res) => {
   }
 });
 
+const createUsers = catchAsync(async (req, res) => {
+  try {
+    const newUser = req.body; // Get the new user data from the request body
+
+    // Create a new user in the database
+    const createdUser = await User.create(newUser);
+
+    res.status(201).json(createdUser); // Return the created user with status code 201 (Created)
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Error creating user" });
+  }
+});
+
+
+const updateUsers = catchAsync(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const newData = req.body;
+     console.log(id);
+    console.log("id");
+    console.log(newData);
+    console.log("newData");
+
+    // Find the user by id and update the data
+    const [updatedRowsCount, updatedUsers] = await User.update(newData, {
+      where: { id },
+      returning: true, // Return the updated user
+    });
+
+    if (updatedRowsCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updatedUser = updatedUsers[0]; // The first element in the returned array is the updated user
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Error updating user" });
+  }
+});
+
+
+
 const getSubscriptions = catchAsync(async (req, res) => {
   try {
     const subscriptions = await Subscriptions.findAll();
@@ -328,6 +373,8 @@ const getUserCallsQueue = catchAsync(async (req, res) => {
 
 module.exports = {
   getUsers,
+  createUsers,
+  updateUsers,
   getSubscriptions,
   getVoiceMemos,
   getCalls,

@@ -14,6 +14,26 @@ const routes = [
   },
 
   {
+    route: "/users/:id",
+    methods: [
+      {
+        method: "PUT",
+        handler: controllers.updateUsers,
+      },
+    ],
+  },
+
+  {
+    route: "/users/",
+    methods: [
+      {
+        method: "POST",
+        handler: controllers.createUsers,
+      },
+    ],
+  },
+
+  {
     route: "/subscriptions",
     methods: [
       {
