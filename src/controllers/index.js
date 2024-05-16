@@ -7,6 +7,7 @@ const Calls = require("../models/calls.model");
 const CallsTranscriptions = require("../models/callsTranscriptions.model");
 const VoiceMemosTranscriptions = require("../models/voiceMemosTranscriptions.model");
 const CallsQueue = require("../models/callsQueue.model");
+const { v4: uuidv4 } = require('uuid');
 
 const getUsers = catchAsync(async (req, res) => {
   try {
@@ -21,17 +22,37 @@ const getUsers = catchAsync(async (req, res) => {
 
 const createUsers = catchAsync(async (req, res) => {
   try {
-    const newUser = req.body; // Get the new user data from the request body
+    let newUser = req.body; // Get the new user data from the request body
 
-    // Create a new user in the database
-    const createdUser = await User.create(newUser);
+    // Generate a unique UUID for the new user
+    let uuid = uuidv4();
+    newUser.uuid = uuid;
 
-    res.status(201).json(createdUser); // Return the created user with status code 201 (Created)
+    // Keep generating a new UUID until it's unique
+    while (true) {
+      try {
+        // Attempt to create a new user in the database
+        const createdUser = await User.create(newUser);
+        res.status(201).json(createdUser); // Return the created user with status code 201 (Created)
+        break; // Exit the loop if user creation is successful
+      } catch (error) {
+        // Check if the error is due to duplicate UUID
+        if (error.code === 'ER_DUP_ENTRY' && error.sqlMessage.includes('uuid_UNIQUE')) {
+          // Generate a new UUID and assign it to the new user
+          uuid = uuidv4();
+          newUser.uuid = uuid;
+        } else {
+          // If it's another type of error, rethrow it
+          throw error;
+        }
+      }
+    }
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ error: "Error creating user" });
   }
 });
+
 
 
 const updateUsers = catchAsync(async (req, res) => {
