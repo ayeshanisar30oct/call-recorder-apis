@@ -20,7 +20,7 @@ const getUsers = catchAsync(async (req, res) => {
   }
 });
 
-const createUsers = catchAsync(async (req, res) => {
+const createUser = catchAsync(async (req, res) => {
   try {
     let newUser = req.body; // Get the new user data from the request body
 
@@ -53,9 +53,7 @@ const createUsers = catchAsync(async (req, res) => {
   }
 });
 
-
-
-const updateUsers = catchAsync(async (req, res) => {
+const updateUser = catchAsync(async (req, res) => {
   try {
     const { id } = req.params;
     const newData = req.body;
@@ -83,6 +81,23 @@ const updateUsers = catchAsync(async (req, res) => {
   }
 });
 
+const deleteUser = catchAsync(async (req, res) => {
+  try {
+    const { id } = req.params;
+console.log("Received DELETE request for user with id:", id);
+    // Delete the user by id
+    const deletedRowsCount = await User.destroy({ where: { id } });
+
+    if (deletedRowsCount === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Error deleting user" });
+  }
+});
 
 
 const getSubscriptions = catchAsync(async (req, res) => {
@@ -394,8 +409,9 @@ const getUserCallsQueue = catchAsync(async (req, res) => {
 
 module.exports = {
   getUsers,
-  createUsers,
-  updateUsers,
+  createUser,
+  updateUser,
+  deleteUser,
   getSubscriptions,
   getVoiceMemos,
   getCalls,

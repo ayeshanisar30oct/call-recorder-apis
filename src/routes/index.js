@@ -14,21 +14,31 @@ const routes = [
   },
 
   {
-    route: "/users/:id",
+    route: "/update-user/:id",
     methods: [
       {
         method: "PUT",
-        handler: controllers.updateUsers,
+        handler: controllers.updateUser,
       },
     ],
   },
 
   {
-    route: "/users/",
+    route: "/create-user/",
     methods: [
       {
         method: "POST",
-        handler: controllers.createUsers,
+        handler: controllers.createUser,
+      },
+    ],
+  },
+
+  {
+    route: "/delete-user/:id",
+    methods: [
+      {
+        method: "DELETE",
+        handler: controllers.deleteUser,
       },
     ],
   },
