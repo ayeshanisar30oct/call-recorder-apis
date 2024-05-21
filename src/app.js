@@ -9,8 +9,9 @@ app.use(express.json());
 
 app.use(cors());
 
-app.get("/api/test-data", (req, res) => {
-  res.json({ message: "This is Syed test data" });
+
+app.get("/", (req, res) => {
+  res.json({ message: "This is call recorder APIs Backend" });
 });
 
 app.use("", routes);

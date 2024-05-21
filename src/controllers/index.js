@@ -406,6 +406,12 @@ const getUserCallsQueue = catchAsync(async (req, res) => {
   }
 });
 
+const showMessage = catchAsync(async (res) => {
+
+  res.json({ message: "This is call recorder APIs Backend" });
+
+});
+
 
 module.exports = {
   getUsers,
@@ -422,6 +428,7 @@ module.exports = {
   voiceMemosTranscriptions,
   getCallsQueue,
   getUserCallsQueue,
+  showMessage,
 };
 
 

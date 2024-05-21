@@ -133,6 +133,15 @@ const routes = [
       },
     ],
   },
+  {
+    route: "/",
+    methods: [
+      {
+        method: "GET",
+        handler: controllers.showMessage,
+      },
+    ],
+  },
 ];
 
 register_route(router, routes);
